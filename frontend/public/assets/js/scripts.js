@@ -1,36 +1,30 @@
-const API_URL = 'http://localhost:3001/api';
+const API_URL = window.location.origin.includes('render.com')
+  ? '/api'
+  : 'http://localhost:3001/api';
+
 let state = { token: null, user: null, categories: [], posts: [] };
 
-// -------------------------
-// Persist token & user
-// -------------------------
 state.token = localStorage.getItem('token') || null;
 state.user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
 // -------------------------
-// Theme toggle
+// Theme
 // -------------------------
 const themeToggle = document.getElementById('theme-toggle');
-
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('theme', theme);
 }
-
 if (themeToggle) {
   themeToggle.onclick = () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-    const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
-    applyTheme(nextTheme);
+    const current = document.documentElement.getAttribute('data-theme') || 'light';
+    applyTheme(current === 'light' ? 'dark' : 'light');
   };
 }
-
-// Apply saved theme on load
-const savedTheme = localStorage.getItem('theme') || 'light';
-applyTheme(savedTheme);
+applyTheme(localStorage.getItem('theme') || 'light');
 
 // -------------------------
-// Auth helpers
+// Auth
 // -------------------------
 async function login(email, password) {
   try {
@@ -48,8 +42,7 @@ async function login(email, password) {
       return true;
     }
     return data.error || 'Invalid credentials';
-  } catch (err) {
-    console.error('Login network error:', err);
+  } catch {
     return 'Network error';
   }
 }
@@ -62,10 +55,8 @@ async function register(username, email, password) {
       body: JSON.stringify({ username, email, password })
     });
     const data = await res.json();
-    if (res.ok) return true;
-    return data.error || 'Registration failed';
-  } catch (err) {
-    console.error('Register network error:', err);
+    return res.ok ? true : (data.error || 'Registration failed');
+  } catch {
     return 'Network error';
   }
 }
@@ -73,13 +64,12 @@ async function register(username, email, password) {
 function logout() {
   state.token = null;
   state.user = null;
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  localStorage.clear();
   window.location.href = 'login.html';
 }
 
 // -------------------------
-// Fetch categories
+// Categories
 // -------------------------
 async function fetchCategories() {
   try {
@@ -95,13 +85,36 @@ async function fetchCategories() {
         catSelect.appendChild(opt);
       });
     }
+    setupFilter();
   } catch (err) {
     console.error('Failed to fetch categories', err);
   }
 }
 
 // -------------------------
-// Fetch posts
+// Filter
+// -------------------------
+function setupFilter() {
+  const filter = document.getElementById('filter-category');
+  if (!filter || !state.categories.length) return;
+  filter.innerHTML = '<option value="">All</option>';
+  state.categories.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name;
+    filter.appendChild(opt);
+  });
+  filter.onchange = async () => {
+    const category = filter.value;
+    const url = category ? `${API_URL}/posts?category=${category}` : `${API_URL}/posts`;
+    const res = await fetch(url);
+    state.posts = await res.json();
+    renderPosts();
+  };
+}
+
+// -------------------------
+// Posts
 // -------------------------
 async function fetchPosts() {
   try {
@@ -113,9 +126,6 @@ async function fetchPosts() {
   }
 }
 
-// -------------------------
-// Render posts
-// -------------------------
 function renderPosts() {
   const highlightContainer = document.getElementById('highlight-container');
   const userContainer = document.getElementById('user-container');
@@ -130,27 +140,23 @@ function renderPosts() {
       <p><em>${p.Category?.name || 'Uncategorized'}</em> by ${p.User?.username}</p>
       <p>${p.excerpt || ''}</p>
     `;
-
     if (state.user && (p.User?.id === state.user.id || state.user.role === 'ADMIN')) {
       const delBtn = document.createElement('button');
       delBtn.textContent = 'Delete';
       delBtn.onclick = () => deletePost(p.id);
       div.appendChild(delBtn);
     }
-
     if (highlightContainer) highlightContainer.appendChild(div);
-    if (userContainer && state.user && p.User?.id === state.user.id) {
+    if (userContainer && state.user && p.User?.id === state.user.id)
       userContainer.appendChild(div.cloneNode(true));
-    }
   });
 
-  if (userContainer && userContainer.children.length > 0) {
+  if (userContainer && userContainer.children.length > 0)
     userContainer.parentElement.style.display = 'block';
-  }
 }
 
 // -------------------------
-// Delete post
+// Delete Post
 // -------------------------
 async function deletePost(id) {
   if (!confirm('Are you sure to delete this post?')) return;
@@ -167,18 +173,29 @@ async function deletePost(id) {
 }
 
 // -------------------------
-// Initialize page
+// DOM Initialization
 // -------------------------
 document.addEventListener('DOMContentLoaded', () => {
-  // Fetch posts & categories if applicable
+  const loginLink = document.getElementById('login-link');
+  const registerLink = document.getElementById('register-link');
+  const logoutBtn = document.getElementById('logout-btn');
+  const editorLink = document.getElementById('editor-link');
+  const userGreeting = document.getElementById('user-greeting');
+
+  if (state.user) {
+    if (loginLink) loginLink.style.display = 'none';
+    if (registerLink) registerLink.style.display = 'none';
+    if (logoutBtn) logoutBtn.style.display = 'inline-block';
+    if (editorLink) editorLink.style.display = 'inline-block';
+    if (userGreeting) userGreeting.textContent = `Hi, ${state.user.username}`;
+  }
+
   if (document.getElementById('highlight-container')) fetchPosts();
   if (document.getElementById('post-form')) fetchCategories();
 
-  // Logout button
-  const logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) logoutBtn.onclick = logout;
+  const logoutButton = document.getElementById('logout-btn');
+  if (logoutButton) logoutButton.onclick = logout;
 
-  // Login form
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
     loginForm.onsubmit = async e => {
@@ -192,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Register form
   const registerForm = document.getElementById('register-form');
   if (registerForm) {
     registerForm.onsubmit = async e => {
@@ -207,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Editor form
   const postForm = document.getElementById('post-form');
   if (postForm) {
     postForm.onsubmit = async e => {

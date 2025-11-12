@@ -16,23 +16,21 @@ exports.register = async (req, res) => {
     const existingUsername = await User.findOne({ where: { username } });
     if (existingUsername) return res.status(400).json({ error: 'Username already taken' });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = await User.create({
       username,
       email,
-      password: hashedPassword,
+      password, // no manual hashing here
       role: 'USER'
     });
 
     console.log(`Registered new user: ${username} (${email})`);
-
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
     console.error('Register error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 };
+
 
 // ----------------------
 // LOGIN
