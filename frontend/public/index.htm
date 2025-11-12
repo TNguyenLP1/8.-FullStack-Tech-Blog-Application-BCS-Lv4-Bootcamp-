@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech Blog</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="nav-left"></div>
+    <div class="nav-center">
+      <img src="assets/img/Armv2.png" class="logo" alt="Armv2 Logo">
+    </div>
+    <div class="nav-right">
+      <button id="theme-toggle">Toggle Theme</button>
+      <span id="user-greeting"></span>
+      <a href="login.html" id="login-link">Login</a>
+      <a href="register.html" id="register-link">Register</a>
+      <button id="logout-btn" style="display:none;">Logout</button>
+      <a href="editor.html" id="editor-link" style="display:none;">New Post</a>
+    </div>
+  </header>
+
+  <main>
+    <section id="highlight-posts" class="post-list">
+      <h2>Highlights</h2>
+      <div id="highlight-container"></div>
+    </section>
+
+    <section id="user-posts" class="post-list" style="display:none;">
+      <h2>Your Posts</h2>
+      <div id="user-container"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Tech Blog</p>
+  </footer>
+
+  <script src="assets/js/scripts.js"></script>
+</body>
+</html>

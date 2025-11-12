@@ -24,6 +24,4 @@ __pycache__/
 
 # Ensure git untracked file and not uploaded to github
 .env
-.env.example
-.env.local
-.env.staging
+    dist/
