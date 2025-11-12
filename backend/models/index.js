@@ -1,10 +1,13 @@
-// backend/models/index.js
 const sequelize = require('../config/db');
 const User = require('./user');
-const Blog = require('./blog');
+const Post = require('./post');   // <-- fixed
+const Category = require('./category'); // <-- include category if needed
 
-// Define relationships
-User.hasMany(Blog, { foreignKey: 'user_id', onDelete: 'CASCADE' });
-Blog.belongsTo(User, { foreignKey: 'user_id' });
+// Define relationships (you already did some in Post.js, so this is optional)
+User.hasMany(Post, { foreignKey: 'authorId', onDelete: 'CASCADE' });
+Post.belongsTo(User, { foreignKey: 'authorId' });
 
-module.exports = { sequelize, User, Blog };
+Category.hasMany(Post, { foreignKey: 'categoryId' });
+Post.belongsTo(Category, { foreignKey: 'categoryId' });
+
+module.exports = { sequelize, User, Post, Category };  // <-- export Post, not Blog
