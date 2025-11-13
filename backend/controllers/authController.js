@@ -1,68 +1,64 @@
 const { User } = require('../models');
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-// ----------------------
-// REGISTER
-// ----------------------
+const signToken = (user) => {
+  return jwt.sign(
+    { id: user.id, username: user.username, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES || '1d' }
+  );
+};
+
 exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    if (!username || !email || !password) return res.status(400).json({ error: 'Missing fields' });
 
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) return res.status(400).json({ error: 'Email already registered' });
+    const existsEmail = await User.findOne({ where: { email } });
+    if (existsEmail) return res.status(400).json({ error: 'Email already registered' });
 
-    const existingUsername = await User.findOne({ where: { username } });
-    if (existingUsername) return res.status(400).json({ error: 'Username already taken' });
+    const existsUser = await User.findOne({ where: { username } });
+    if (existsUser) return res.status(400).json({ error: 'Username already taken' });
 
-    const user = await User.create({
-      username,
-      email,
-      password, // no manual hashing here
-      role: 'USER'
-    });
+    const user = await User.create({ username, email, password, role: 'USER' });
 
-    console.log(`Registered new user: ${username} (${email})`);
-    res.status(201).json({ message: 'User registered successfully' });
+    return res.status(201).json({ message: 'Registered', user: { id: user.id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     console.error('Register error:', err);
-    res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error' });
   }
 };
 
-
-// ----------------------
-// LOGIN
-// ----------------------
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Missing credentials' });
 
     const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
 
-    if (!user) {
-      console.log(`Login failed: email not found - ${email}`);
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-
-    const match = await bcrypt.compare(password, user.password);
-
-    console.log(`Login attempt for ${email} - Password match: ${match}`);
-
+    const match = await user.comparePassword(password);
     if (!match) return res.status(400).json({ error: 'Invalid credentials' });
 
-    const accessToken = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      process.env.JWT_SECRET || 'secret123',
-      { expiresIn: '1d' }
-    );
+    const token = signToken(user);
 
-    console.log(`Login successful: ${email}`);
+    const cookieOptions = {
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 24 * 60 * 60 * 1000
+    };
 
-    res.json({ accessToken, user: { id: user.id, username: user.username, role: user.role } });
+    res.cookie('token', token, cookieOptions);
+    return res.json({ message: 'Logged in', user: { id: user.id, username: user.username, role: user.role } });
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error' });
   }
+};
+
+exports.logout = async (req, res) => {
+  res.clearCookie('token', { httpOnly: true, sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', secure: process.env.NODE_ENV === 'production' });
+  return res.json({ message: 'Logged out' });
 };

@@ -1,16 +1,19 @@
-const { Sequelize } = require('sequelize');
 const sequelize = require('../config/db');
 
-// Import models
 const User = require('./user');
 const Post = require('./post');
 const Category = require('./category');
 
-// Define associations
-User.hasMany(Post, { foreignKey: 'authorId' });
-Post.belongsTo(User, { foreignKey: 'authorId' });
+// Associations
+User.hasMany(Post, { foreignKey: 'authorId', sourceKey: 'id' });
+Post.belongsTo(User, { foreignKey: 'authorId', as: 'User' });
 
-Category.hasMany(Post, { foreignKey: 'categoryId' });
-Post.belongsTo(Category, { foreignKey: 'categoryId' });
+Category.hasMany(Post, { foreignKey: 'categoryId', sourceKey: 'id' });
+Post.belongsTo(Category, { foreignKey: 'categoryId', as: 'Category' });
 
-module.exports = { sequelize, User, Post, Category };
+module.exports = {
+  sequelize,
+  User,
+  Post,
+  Category
+};

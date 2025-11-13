@@ -1,43 +1,43 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const path = require('path');
-const { sequelize } = require('./models');
 require('dotenv').config();
+
+const { sequelize } = require('./models');
 
 const app = express();
 
-// -------------------------
-// Middleware
-// -------------------------
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: FRONTEND_URL,
   credentials: true
 }));
-app.use(express.json());
 
-// -------------------------
-// API Routes
-// -------------------------
+app.use(express.json());
+app.use(cookieParser());
+
+// API routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/categories', require('./routes/categories'));
 
-// -------------------------
-// Serve Frontend in Production
-// -------------------------
+// Serve frontend (production)
 if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../frontend');
+  const frontendPath = path.join(__dirname, '../frontend/public');
   app.use(express.static(frontendPath));
   app.get('*', (_, res) => res.sendFile(path.join(frontendPath, 'index.html')));
 }
 
-// -------------------------
-// Start Server
-// -------------------------
 const PORT = process.env.PORT || 3001;
-sequelize
-  .sync({ force: true }) // force drop & recreate tables
-  .then(() => {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch(err => console.error('Failed to sync database:', err));
+
+(async () => {
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync({ alter: true });
+    app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
+  } catch (err) {
+    console.error('Startup error:', err);
+  }
+})();

@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tech Blog</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
@@ -10,10 +10,10 @@
   <header class="navbar">
     <div class="nav-left"></div>
     <div class="nav-center">
-      <img src="assets/img/Armv2.png" class="logo" alt="Armv2 Logo">
+      <img src="assets/img/Armv2.png" class="logo" alt="Logo">
     </div>
     <div class="nav-right">
-      <button id="theme-toggle">Toggle Theme</button>
+      <button id="theme-toggle">Theme</button>
       <span id="user-greeting"></span>
       <a href="login.html" id="login-link">Login</a>
       <a href="register.html" id="register-link">Register</a>
@@ -23,12 +23,17 @@
   </header>
 
   <main>
-    <section id="highlight-posts" class="post-list">
+    <section class="widget">
+      <label for="filter-category">Filter by category:</label>
+      <select id="filter-category"></select>
+    </section>
+
+    <section id="highlight-posts" class="post-list widget">
       <h2>Highlights</h2>
       <div id="highlight-container"></div>
     </section>
 
-    <section id="user-posts" class="post-list" style="display:none;">
+    <section id="user-posts" class="post-list widget" style="display:none;">
       <h2>Your Posts</h2>
       <div id="user-container"></div>
     </section>
@@ -38,82 +43,6 @@
     <p>&copy; 2025 Tech Blog</p>
   </footer>
 
-  <script src="assets/js/scripts.js"></script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const themeToggle = document.getElementById("themeToggle");
-  const body = document.body;
-  const toggleIcon = themeToggle ? themeToggle.querySelector("i") : null;
-
-  const savedTheme = localStorage.getItem("theme");
-  if(savedTheme) body.classList.add(savedTheme);
-  if(toggleIcon) toggleIcon.className = body.classList.contains("dark-mode") ? "fa-solid fa-moon" : "fa-solid fa-sun";
-
-  if(themeToggle) {
-    themeToggle.addEventListener("click", () => {
-      body.classList.toggle("dark-mode");
-      const isDark = body.classList.contains("dark-mode");
-      localStorage.setItem("theme", isDark ? "dark-mode" : "light-mode");
-      toggleIcon.className = isDark ? "fa-solid fa-moon" : "fa-solid fa-sun";
-      themeToggle.classList.toggle("dark", isDark);
-    });
-  }
-});
-</script>
-
-<script>
-function validateInput(input) {
-  if(!input.value.trim()) input.classList.add("invalid");
-  else input.classList.remove("invalid");
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const inputs = document.querySelectorAll("input, textarea");
-  inputs.forEach(input => {
-    input.addEventListener("blur", () => validateInput(input));
-  });
-});
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  let selectedId = null;
-
-  // Delete
-  document.querySelectorAll(".btn-delete").forEach(btn => {
-    btn.addEventListener("click", e => {
-      selectedId = e.target.dataset.id;
-      new bootstrap.Modal(document.getElementById("deleteModal")).show();
-    });
-  });
-
-  document.getElementById("deleteConfirmBtnIndex").addEventListener("click", () => {
-    if(selectedId !== null) {
-      deleteTask(selectedId);
-      selectedId = null;
-      bootstrap.Modal.getInstance(document.getElementById("deleteModal")).hide();
-    }
-  });
-
-  // Edit
-  document.querySelectorAll(".btn-edit").forEach(btn => {
-    btn.addEventListener("click", e => {
-      selectedId = e.target.dataset.id;
-      populateEditForm(selectedId);
-      new bootstrap.Modal(document.getElementById("editModal")).show();
-    });
-  });
-
-  document.getElementById("editConfirmBtn").addEventListener("click", () => {
-    if(selectedId !== null) {
-      saveEdit(selectedId);
-      selectedId = null;
-      bootstrap.Modal.getInstance(document.getElementById("editConfirmModal")).hide();
-    }
-  });
-});
-</script>
-
+  <script type="module" src="assets/js/main.js"></script>
 </body>
 </html>

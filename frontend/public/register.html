@@ -1,59 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Register - Tech Blog</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-  <main class="auth-section">
+  <main class="auth-section widget">
     <h2>Register</h2>
     <form id="register-form">
       <label>Username<input type="text" id="register-username" required></label>
       <label>Email<input type="email" id="register-email" required></label>
       <label>Password<input type="password" id="register-password" required></label>
-      <button type="submit">Register</button>
+      <div style="margin-top:12px;">
+        <button type="submit" class="btn-primary">Register</button>
+        <a href="login.html" style="margin-left:8px;">Login</a>
+      </div>
       <p class="warning" id="register-warning"></p>
     </form>
   </main>
-  <script src="assets/js/scripts.js"></script>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const themeToggle = document.getElementById("themeToggle");
-  const body = document.body;
-  const toggleIcon = themeToggle ? themeToggle.querySelector("i") : null;
-
-  const savedTheme = localStorage.getItem("theme");
-  if(savedTheme) body.classList.add(savedTheme);
-  if(toggleIcon) toggleIcon.className = body.classList.contains("dark-mode") ? "fa-solid fa-moon" : "fa-solid fa-sun";
-
-  if(themeToggle) {
-    themeToggle.addEventListener("click", () => {
-      body.classList.toggle("dark-mode");
-      const isDark = body.classList.contains("dark-mode");
-      localStorage.setItem("theme", isDark ? "dark-mode" : "light-mode");
-      toggleIcon.className = isDark ? "fa-solid fa-moon" : "fa-solid fa-sun";
-      themeToggle.classList.toggle("dark", isDark);
-    });
-  }
-});
-</script>
-
-<script>
-function validateInput(input) {
-  if(!input.value.trim()) input.classList.add("invalid");
-  else input.classList.remove("invalid");
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const inputs = document.querySelectorAll("input, textarea");
-  inputs.forEach(input => {
-    input.addEventListener("blur", () => validateInput(input));
-  });
-});
-</script>
-
+  <script type="module" src="assets/js/main.js"></script>
 </body>
 </html>
