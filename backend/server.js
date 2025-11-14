@@ -1,43 +1,36 @@
-const express = require('express');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-const path = require('path');
-require('dotenv').config();
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+import authRoutes from './routes/auth.js';
+import postRoutes from './routes/posts.js';
+import categoryRoutes from './routes/categories.js';
 
-const { sequelize } = require('./models');
-
+dotenv.config();
 const app = express();
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-
-app.use(cors({
-  origin: FRONTEND_URL,
-  credentials: true
-}));
-
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser()); // <-- important for cookie JWT
 
-// API routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/posts', require('./routes/posts'));
-app.use('/api/categories', require('./routes/categories'));
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/categories', categoryRoutes);
 
-// Serve frontend (production)
-if (process.env.NODE_ENV === 'production') {
-  const frontendPath = path.join(__dirname, '../frontend/public');
-  app.use(express.static(frontendPath));
-  app.get('*', (_, res) => res.sendFile(path.join(frontendPath, 'index.html')));
-}
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../frontend/public')));
+
+// Catch-all route to serve index.html for frontend routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/index.html'));
+});
+
+
+// Start server
 const PORT = process.env.PORT || 3001;
-
-(async () => {
-  try {
-    await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
-    app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
-  } catch (err) {
-    console.error('Startup error:', err);
-  }
-})();
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

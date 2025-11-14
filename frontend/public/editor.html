@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editor - Tech Blog</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
@@ -10,30 +10,69 @@
   <header class="navbar">
     <div class="nav-left"></div>
     <div class="nav-center">
-      <img src="assets/img/Armv2.png" class="logo" alt="Logo">
+      <img src="assets/img/Armv2.png" class="logo" alt="Armv2 Logo">
     </div>
     <div class="nav-right">
-      <button id="theme-toggle">Theme</button>
+      <button id="theme-toggle">Toggle Theme</button>
       <button id="logout-btn">Logout</button>
       <a href="index.html">Home</a>
     </div>
   </header>
 
-  <main class="editor-section widget">
+  <main class="editor-section">
     <h2>Create / Edit Post</h2>
-    <form id="post-form" data-post-id="">
+    <form id="post-form">
       <label>Title<input type="text" id="title" required></label>
       <label>Category<select id="category"></select></label>
       <label>Excerpt<textarea id="excerpt"></textarea></label>
       <label>Content<textarea id="content" required></textarea></label>
-      <div style="margin-top:12px;">
-        <button type="submit" class="btn-primary">Save</button>
-        <button type="button" id="cancel-edit" class="btn-secondary">Cancel</button>
-      </div>
+      <button type="submit">Save</button>
+      <button type="button" id="cancel-edit">Cancel</button>
       <p class="warning" id="post-warning"></p>
     </form>
   </main>
 
-  <script type="module" src="assets/js/main.js"></script>
+  <script type="module">
+    import { initTheme, initFormValidation, initUser } from './assets/js/main.js';
+    import { fetchCategories, createPost, updatePost } from './assets/js/posts.js';
+
+    initTheme();
+    initFormValidation();
+    initUser(JSON.parse(localStorage.getItem('user')));
+
+    const form = document.getElementById('post-form');
+    const categorySelect = document.getElementById('category');
+
+    // Fetch categories
+    fetchCategories().then(cats=>{
+      categorySelect.innerHTML='';
+      cats.forEach(c=>{
+        const opt = document.createElement('option');
+        opt.value=c.id;
+        opt.textContent=c.name;
+        categorySelect.appendChild(opt);
+      });
+    });
+
+    form.onsubmit = async e=>{
+      e.preventDefault();
+      const post = {
+        title: document.getElementById('title').value,
+        content: document.getElementById('content').value,
+        excerpt: document.getElementById('excerpt').value,
+        categoryId: categorySelect.value
+      };
+      try {
+        await createPost(post);
+        window.location.href='index.html';
+      } catch(err){
+        document.getElementById('post-warning').textContent='Failed to save post';
+      }
+    };
+
+    document.getElementById('cancel-edit').onclick = ()=>{
+      window.location.href='index.html';
+    };
+  </script>
 </body>
 </html>

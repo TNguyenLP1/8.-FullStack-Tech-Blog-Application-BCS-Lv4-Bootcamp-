@@ -1,23 +1,26 @@
 {
-  "name": "tech-blog-backend",
+  "name": "tech-blog",
   "version": "1.0.0",
-  "description": "Backend for Tech Blog - Express + Sequelize + MySQL",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "NODE_ENV=development nodemon server.js"
-  },
+  "type": "module",
+"scripts": {
+  "dev": "cross-env NODE_ENV=development nodemon backend/server.js",
+  "start": "node backend/server.js"
+},
+
   "dependencies": {
+    "express": "^4.18.2",
+    "sequelize": "^6.32.1",
+    "mysql2": "^3.2.0",
     "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.0",
-    "mysql2": "^3.2.0",
-    "sequelize": "^6.32.1"
+    "dotenv": "^16.0.3"
   },
   "devDependencies": {
-    "nodemon": "^2.0.22"
+    "nodemon": "^3.1.11",
+    "cross-env": "^10.1.0",
+    "concurrently": "^8.2.0",
+    "live-server": "^1.2.2"
   }
 }

@@ -1,26 +1,44 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register - Tech Blog</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-  <main class="auth-section widget">
+  <main class="auth-section">
     <h2>Register</h2>
     <form id="register-form">
       <label>Username<input type="text" id="register-username" required></label>
       <label>Email<input type="email" id="register-email" required></label>
       <label>Password<input type="password" id="register-password" required></label>
-      <div style="margin-top:12px;">
-        <button type="submit" class="btn-primary">Register</button>
-        <a href="login.html" style="margin-left:8px;">Login</a>
-      </div>
+      <button type="submit">Register</button>
       <p class="warning" id="register-warning"></p>
     </form>
+    <p>Already have an account? <a href="login.html">Login here</a></p>
   </main>
 
-  <script type="module" src="assets/js/main.js"></script>
+  <script type="module">
+    import { initTheme, initFormValidation } from './assets/js/main.js';
+    import { register } from './assets/js/auth.js';
+
+    initTheme();
+    initFormValidation();
+
+    document.getElementById('register-form').onsubmit = async e => {
+      e.preventDefault();
+      const username = document.getElementById('register-username').value;
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      const res = await register(username,email,password);
+      if(res.user){
+        localStorage.setItem('user', JSON.stringify(res.user));
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('register-warning').textContent = res.error || 'Registration failed';
+      }
+    };
+  </script>
 </body>
 </html>

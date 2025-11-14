@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
-const bcrypt = require('bcryptjs');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
+import bcrypt from 'bcryptjs';
 
 const User = sequelize.define('User', {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
@@ -19,18 +19,12 @@ const User = sequelize.define('User', {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
       }
-    },
-    beforeUpdate: async (user) => {
-      if (user.changed('password')) {
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(user.password, salt);
-      }
     }
   }
 });
 
-User.prototype.comparePassword = async function (plain) {
-  return bcrypt.compare(plain, this.password);
+User.prototype.comparePassword = async function(password) {
+  return bcrypt.compare(password, this.password);
 };
 
-module.exports = User;
+export default User;

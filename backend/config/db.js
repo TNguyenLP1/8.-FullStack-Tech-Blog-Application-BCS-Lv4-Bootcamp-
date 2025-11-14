@@ -1,5 +1,6 @@
-const { Sequelize } = require('sequelize');
-require('dotenv').config();
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -7,12 +8,16 @@ const sequelize = new Sequelize(
   process.env.DB_PASS,
   {
     host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT || 'mysql',
-    logging: false,
-    dialectOptions: {
-      // optional - tune for your MySQL provider
-    }
+    dialect: process.env.DB_DIALECT,
+    logging: process.env.NODE_ENV === 'development' ? console.log : false,
   }
 );
 
-module.exports = sequelize;
+try {
+  await sequelize.authenticate();
+  console.log(`Connected to DB: ${process.env.DB_NAME}`);
+} catch (err) {
+  console.error('DB connection failed:', err);
+}
+
+export default sequelize;

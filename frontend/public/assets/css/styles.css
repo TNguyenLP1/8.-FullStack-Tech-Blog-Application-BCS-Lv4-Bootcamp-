@@ -1,0 +1,229 @@
+/* -------------------------
+   Root Variables
+------------------------- */
+:root {
+  --bg-body: #e0e0e0;
+  --bg-navbar: #000;
+  --text-navbar: #fff;
+  --text-color: #000;
+  --bg-widget: #f4f4f4;
+  --bg-modal: #fff;
+  --text-modal: #000;
+  --btn-primary-bg: #007bff;
+  --btn-primary-hover: #0056b3;
+  --btn-red-bg: #dc3545;
+  --btn-red-hover: #a71d2a;
+  --btn-green-bg: #28a745;
+  --btn-green-hover: #1c7430;
+  --btn-secondary-bg: #6c757d;
+  --btn-secondary-hover: #5a6268;
+  --border-color: #ccc;
+}
+
+/* Dark mode variables */
+body.dark-mode {
+  --bg-body: #121212;
+  --bg-navbar: #1c1c1c;
+  --text-navbar: #eee;
+  --text-color: #eee;
+  --bg-widget: #1e1e1e;
+  --bg-modal: #2b2b2b;
+  --text-modal: #eee;
+  --btn-primary-bg: #3b82f6;
+  --btn-primary-hover: #1e40af;
+  --btn-red-bg: #ef4444;
+  --btn-red-hover: #991b1b;
+  --btn-green-bg: #22c55e;
+  --btn-green-hover: #166534;
+  --btn-secondary-bg: #4b5563;
+  --btn-secondary-hover: #374151;
+  --border-color: #444;
+}
+
+/* -------------------------
+   Global Styles
+------------------------- */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-color);
+  min-height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #fff;
+  transition: background 0.3s;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* -------------------------
+   Navbar
+------------------------- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: var(--bg-navbar);
+  color: var(--text-navbar);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-center .logo {
+  height: 50px;
+}
+
+/* -------------------------
+   Forms
+------------------------- */
+.auth-section, .editor-section {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: var(--bg-widget);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.auth-section h2, .editor-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.auth-section label, .editor-section label {
+  display: block;
+  margin-bottom: 15px;
+}
+
+input[type="text"], input[type="email"], input[type="password"], textarea, select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  background-color: #fff;
+  color: #000;
+}
+
+textarea {
+  min-height: 100px;
+}
+
+.warning {
+  color: var(--btn-red-bg);
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+/* -------------------------
+   Buttons
+------------------------- */
+.btn-blue { background-color: var(--btn-primary-bg); }
+.btn-blue:hover { background-color: var(--btn-primary-hover); }
+
+.btn-red { background-color: var(--btn-red-bg); }
+.btn-red:hover { background-color: var(--btn-red-hover); }
+
+.btn-green { background-color: var(--btn-green-bg); }
+.btn-green:hover { background-color: var(--btn-green-hover); }
+
+.btn-secondary { background-color: var(--btn-secondary-bg); }
+.btn-secondary:hover { background-color: var(--btn-secondary-hover); }
+
+/* -------------------------
+   Post Lists
+------------------------- */
+.post-list {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.post-list h2 {
+  margin-bottom: 10px;
+}
+
+.post-card {
+  background-color: var(--bg-widget);
+  margin-bottom: 15px;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: background 0.3s;
+}
+
+.post-card h3 {
+  margin: 0 0 5px 0;
+}
+
+.post-card p {
+  margin: 5px 0;
+}
+
+.post-card button {
+  margin-right: 10px;
+}
+
+/* -------------------------
+   Category Filter
+------------------------- */
+#filter-category {
+  padding: 5px 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+}
+
+/* -------------------------
+   Editor Section Buttons
+------------------------- */
+.editor-section button {
+  margin-top: 10px;
+}
+
+/* -------------------------
+   Invalid Inputs
+------------------------- */
+input.invalid, textarea.invalid {
+  border: 2px solid var(--btn-red-bg);
+  background-color: #fff0f0;
+}
+
+/* -------------------------
+   Responsive
+------------------------- */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .editor-section, .auth-section {
+    margin: 20px;
+  }
+
+  .post-list {
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  input[type="text"], input[type="email"], input[type="password"], textarea, select, button {
+    width: 100%;
+  }
+}

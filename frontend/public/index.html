@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tech Blog</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
@@ -10,10 +10,10 @@
   <header class="navbar">
     <div class="nav-left"></div>
     <div class="nav-center">
-      <img src="assets/img/Armv2.png" class="logo" alt="Logo">
+      <img src="assets/img/Armv2.png" class="logo" alt="Armv2 Logo">
     </div>
     <div class="nav-right">
-      <button id="theme-toggle">Theme</button>
+      <button id="theme-toggle">Toggle Theme</button>
       <span id="user-greeting"></span>
       <a href="login.html" id="login-link">Login</a>
       <a href="register.html" id="register-link">Register</a>
@@ -23,17 +23,18 @@
   </header>
 
   <main>
-    <section class="widget">
-      <label for="filter-category">Filter by category:</label>
-      <select id="filter-category"></select>
+    <section>
+      <label>Filter by Category:
+        <select id="filter-category"></select>
+      </label>
     </section>
 
-    <section id="highlight-posts" class="post-list widget">
+    <section id="highlight-posts" class="post-list">
       <h2>Highlights</h2>
       <div id="highlight-container"></div>
     </section>
 
-    <section id="user-posts" class="post-list widget" style="display:none;">
+    <section id="user-posts" class="post-list" style="display:none;">
       <h2>Your Posts</h2>
       <div id="user-container"></div>
     </section>
@@ -43,6 +44,12 @@
     <p>&copy; 2025 Tech Blog</p>
   </footer>
 
-  <script type="module" src="assets/js/main.js"></script>
+  <script type="module">
+    import { initTheme, initUser, refreshPosts, setupCategoryFilter } from './assets/js/main.js';
+    initTheme();
+    initUser(JSON.parse(localStorage.getItem('user')));
+    refreshPosts(JSON.parse(localStorage.getItem('user')));
+    setupCategoryFilter(JSON.parse(localStorage.getItem('user')));
+  </script>
 </body>
 </html>

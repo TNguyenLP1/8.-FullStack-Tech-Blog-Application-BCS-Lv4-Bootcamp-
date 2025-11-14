@@ -1,25 +1,42 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Tech Blog</title>
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-  <main class="auth-section widget">
+  <main class="auth-section">
     <h2>Login</h2>
     <form id="login-form">
       <label>Email<input type="email" id="login-email" required></label>
       <label>Password<input type="password" id="login-password" required></label>
-      <div style="margin-top:12px;">
-        <button type="submit" class="btn-primary">Login</button>
-        <a href="register.html" style="margin-left:8px;">Register</a>
-      </div>
+      <button type="submit">Login</button>
       <p class="warning" id="login-warning"></p>
     </form>
+    <p>Don't have an account? <a href="register.html">Register here</a></p>
   </main>
 
-  <script type="module" src="assets/js/main.js"></script>
+  <script type="module">
+    import { initTheme, initFormValidation } from './assets/js/main.js';
+    import { login } from './assets/js/auth.js';
+
+    initTheme();
+    initFormValidation();
+
+    document.getElementById('login-form').onsubmit = async e => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const res = await login(email, password);
+      if(res.user){
+        localStorage.setItem('user', JSON.stringify(res.user));
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('login-warning').textContent = res.error || 'Login failed';
+      }
+    };
+  </script>
 </body>
 </html>

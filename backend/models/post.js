@@ -1,10 +1,10 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
 
 const Post = sequelize.define('Post', {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-  title: { type: DataTypes.STRING(255), allowNull: false },
-  excerpt: { type: DataTypes.STRING(255), allowNull: true },
+  title: { type: DataTypes.STRING, allowNull: false },
+  excerpt: { type: DataTypes.STRING },
   content: { type: DataTypes.TEXT, allowNull: false },
   authorId: { type: DataTypes.INTEGER, allowNull: false, field: 'author_id' },
   categoryId: { type: DataTypes.INTEGER, allowNull: true, field: 'category_id' }
@@ -15,4 +15,4 @@ const Post = sequelize.define('Post', {
   updatedAt: 'updated_at'
 });
 
-module.exports = Post;
+export default Post;
