@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { User } from '../models/index.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -6,12 +7,18 @@ dotenv.config();
 export const register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    if (!username || !email || !password)
+      return res.status(400).json({ error: 'All fields required' });
 
-    if (await User.findOne({ where: { email } })) return res.status(400).json({ error: 'Email already registered' });
-    if (await User.findOne({ where: { username } })) return res.status(400).json({ error: 'Username already taken' });
+    if (await User.findOne({ where: { email } }))
+      return res.status(400).json({ error: 'Email already registered' });
+    if (await User.findOne({ where: { username } }))
+      return res.status(400).json({ error: 'Username already taken' });
 
-    const user = await User.create({ username, email, password });
-    res.status(201).json({ message: 'User registered successfully' });
+    // Create user WITHOUT hashing here; the hook will hash it
+    await User.create({ username, email, password });
+
+    res.status(201).json({ message: 'Registration successful' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
@@ -21,14 +28,23 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'All fields required' });
+
     const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!user) return res.status(400).json({ error: 'Invalid email or password' });
 
     const match = await user.comparePassword(password);
-    if (!match) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!match) return res.status(400).json({ error: 'Invalid email or password' });
 
     const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
     res.json({ user: { id: user.id, username: user.username, role: user.role } });
   } catch (err) {
     console.error(err);

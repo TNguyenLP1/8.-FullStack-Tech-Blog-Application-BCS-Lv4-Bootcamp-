@@ -1,175 +1,190 @@
 import { login, register, logout, getCurrentUser } from './auth.js';
-import { fetchPosts, fetchCategories, createPost, updatePost, deletePost } from './posts.js';
+import { fetchPosts, createPost, updatePost, deletePost, fetchCategories } from './posts.js';
 
-let state = { user: null, categories: [], posts: [] };
+let state = { user: null, posts: [], categories: [] };
 
-// Theme
-
-export function initTheme(toggleId = 'theme-toggle') {
-  const toggle = document.getElementById(toggleId);
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-
-  if (toggle) {
-    toggle.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme');
-      const next = current === 'light' ? 'dark' : 'light';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
-    });
-  }
-}
-
-// DOM Utils
-
-export function showWarning(id, msg, color = 'red') {
-  const el = document.getElementById(id);
-  if (el) {
-    el.style.color = color;
-    el.textContent = msg;
-  }
-}
-
-export function validateInput(input) {
-  if (!input.value.trim()) input.classList.add('invalid');
-  else input.classList.remove('invalid');
-}
-
-// POSTS RENDER
-
-export function renderPosts(posts, highlightContainerId = 'highlight-container', userContainerId = 'user-container', user = null) {
-  const highlightContainer = document.getElementById(highlightContainerId);
-  const userContainer = document.getElementById(userContainerId);
-
-  if (highlightContainer) highlightContainer.innerHTML = '';
-  if (userContainer) userContainer.innerHTML = '';
+// -------------------------
+// RENDER POSTS
+// -------------------------
+function renderPosts(posts) {
+  const container = document.getElementById('highlight-container');
+  container.innerHTML = '';
 
   posts.forEach(p => {
     const div = document.createElement('div');
     div.className = 'post-card';
     div.innerHTML = `
       <h3>${p.title}</h3>
-      <p><em>${p.Category?.name || 'Uncategorized'}</em> by ${p.User?.username}</p>
       <p>${p.excerpt || ''}</p>
+      <p>By ${p.User?.username || 'Unknown'} | Category: ${p.Category?.name || 'Uncategorized'}</p>
     `;
 
-    if (user && (p.User?.id === user.id || user.role === 'ADMIN')) {
+    if (state.user && (p.User?.id === state.user.id || state.user.role === 'ADMIN')) {
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.onclick = () => showPostForm(p);
+
       const delBtn = document.createElement('button');
       delBtn.textContent = 'Delete';
-      delBtn.onclick = async () => { await deletePost(p.id); await refreshPosts(user); };
+      delBtn.onclick = async () => {
+        if (confirm('Are you sure?')) {
+          const res = await deletePost(p.id);
+          if (res.error) alert(res.error);
+          else {
+            state.posts = state.posts.filter(post => post.id !== p.id);
+            renderPosts(state.posts);
+          }
+        }
+      };
+
+      div.appendChild(editBtn);
       div.appendChild(delBtn);
     }
 
-    if (highlightContainer) highlightContainer.appendChild(div);
-    if (userContainer && user && p.User?.id === user.id) userContainer.appendChild(div.cloneNode(true));
+    container.appendChild(div);
   });
-
-  if (userContainer && userContainer.children.length > 0) {
-    userContainer.parentElement.style.display = 'block';
-  }
 }
 
-export async function refreshPosts(user) {
-  state.posts = await fetchPosts();
-  renderPosts(state.posts, 'highlight-container', 'user-container', user);
+// -------------------------
+// SHOW POST FORM
+// -------------------------
+function showPostForm(post = null) {
+  const form = document.getElementById('post-form');
+  form.style.display = 'block';
+  document.getElementById('post-id').value = post?.id || '';
+  document.getElementById('post-title').value = post?.title || '';
+  document.getElementById('post-excerpt').value = post?.excerpt || '';
+  document.getElementById('post-content').value = post?.content || '';
+  document.getElementById('post-category').value = post?.Category?.id || '';
 }
 
-// CATEGORY FILTER
-
-export async function setupCategoryFilter(user) {
+// -------------------------
+// INIT CATEGORIES
+// -------------------------
+async function initCategories() {
   state.categories = await fetchCategories();
   const filter = document.getElementById('filter-category');
-  if (!filter || !state.categories.length) return;
+  const postCategory = document.getElementById('post-category');
 
   filter.innerHTML = '<option value="">All</option>';
+  postCategory.innerHTML = '<option value="">Uncategorized</option>';
+
   state.categories.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = c.name;
-    filter.appendChild(opt);
+    const opt1 = document.createElement('option');
+    opt1.value = c.id;
+    opt1.textContent = c.name;
+    filter.appendChild(opt1);
+
+    const opt2 = document.createElement('option');
+    opt2.value = c.id;
+    opt2.textContent = c.name;
+    postCategory.appendChild(opt2);
   });
 
-  filter.addEventListener('change', async () => {
+  filter.onchange = () => {
     const cat = filter.value;
-    state.posts = await fetchPosts(cat || null);
-    renderPosts(state.posts, 'highlight-container', 'user-container', user);
-  });
+    const filtered = cat ? state.posts.filter(p => p.Category?.id == cat) : state.posts;
+    renderPosts(filtered);
+  };
 }
 
-// AUTH INIT
-
-export async function initUser() {
+// -------------------------
+// INIT AUTH
+// -------------------------
+async function initAuth() {
   state.user = await getCurrentUser();
 
   const loginLink = document.getElementById('login-link');
   const registerLink = document.getElementById('register-link');
   const logoutBtn = document.getElementById('logout-btn');
-  const editorLink = document.getElementById('editor-link');
   const userGreeting = document.getElementById('user-greeting');
+  const loginForm = document.getElementById('login-form');
+  const registerForm = document.getElementById('register-form');
+  const postForm = document.getElementById('post-form');
 
   if (state.user) {
-    if (loginLink) loginLink.style.display = 'none';
-    if (registerLink) registerLink.style.display = 'none';
-    if (logoutBtn) logoutBtn.style.display = 'inline-block';
-    if (editorLink) editorLink.style.display = 'inline-block';
-    if (userGreeting) userGreeting.textContent = `Hi, ${state.user.username}`;
+    loginLink.style.display = 'none';
+    registerLink.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+    userGreeting.textContent = `Hi, ${state.user.username}`;
+    postForm.style.display = 'block';
+  } else {
+    loginLink.onclick = () => { loginForm.style.display = 'block'; registerForm.style.display = 'none'; };
+    registerLink.onclick = () => { registerForm.style.display = 'block'; loginForm.style.display = 'none'; };
   }
 
-  if (logoutBtn) logoutBtn.addEventListener('click', logout);
-}
+  logoutBtn.onclick = async () => {
+    await logout();
+    state.user = null;
+    window.location.reload();
+  };
 
-// FORM VALIDATION
+  loginForm.onsubmit = async e => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const res = await login(email, password);
+    if (res.error) alert(res.error);
+    else window.location.reload();
+  };
 
-export function initFormValidation() {
-  const inputs = document.querySelectorAll('input,textarea');
-  inputs.forEach(input => input.addEventListener('blur', () => validateInput(input)));
-}
+  registerForm.onsubmit = async e => {
+    e.preventDefault();
+    const username = document.getElementById('register-username').value;
+    const email = document.getElementById('register-email').value;
+    const password = document.getElementById('register-password').value;
+    const res = await register(username, email, password);
+    if (res.error) alert(res.error);
+    else window.location.reload();
+  };
 
-// REGISTER & LOGIN FORMS
+  postForm.onsubmit = async e => {
+    e.preventDefault();
+    const postId = document.getElementById('post-id').value;
+    const title = document.getElementById('post-title').value;
+    const excerpt = document.getElementById('post-excerpt').value;
+    const content = document.getElementById('post-content').value;
+    const categoryId = document.getElementById('post-category').value || null;
 
-export function initAuthForms() {
-  const registerForm = document.getElementById('register-form');
-  if (registerForm) {
-    registerForm.addEventListener('submit', async e => {
-      e.preventDefault();
-      const username = document.getElementById('register-username').value.trim();
-      const email = document.getElementById('register-email').value.trim();
-      const password = document.getElementById('register-password').value.trim();
-
-      try {
-        const data = await register(username, email, password);
-        showWarning('register-warning', data.message || 'Registration successful!', 'green');
-        registerForm.reset();
-      } catch (err) {
-        showWarning('register-warning', err.message);
+    if (postId) {
+      const res = await updatePost(postId, { title, excerpt, content, categoryId });
+      if (res.error) alert(res.error);
+      else {
+        const index = state.posts.findIndex(p => p.id == postId);
+        if (index > -1) state.posts[index] = res;
+        renderPosts(state.posts);
       }
-    });
-  }
-
-  const loginForm = document.getElementById('login-form');
-  if (loginForm) {
-    loginForm.addEventListener('submit', async e => {
-      e.preventDefault();
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value.trim();
-
-      try {
-        await login(email, password);
-        window.location.href = '/';
-      } catch (err) {
-        showWarning('login-warning', err.message);
+    } else {
+      const res = await createPost({ title, excerpt, content, categoryId });
+      if (res.error) alert(res.error);
+      else {
+        state.posts.unshift(res);
+        renderPosts(state.posts);
       }
-    });
-  }
+    }
+
+    postForm.reset();
+    postForm.style.display = 'none';
+  };
+
+  document.getElementById('cancel-post').onclick = () => postForm.style.display = 'none';
 }
 
-// INIT ALL
+// -------------------------
+// LOAD POSTS
+// -------------------------
+async function loadPosts() {
+  state.posts = await fetchPosts();
+  renderPosts(state.posts);
+}
 
+// -------------------------
+// INIT APP
+// -------------------------
 export async function initApp() {
-  initTheme();
-  initFormValidation();
-  initAuthForms();
-  await initUser();
-  await refreshPosts(state.user);
-  await setupCategoryFilter(state.user);
+  await initAuth();
+  await initCategories();
+  await loadPosts();
 }
+
+initApp();

@@ -1,229 +1,178 @@
-/* -------------------------
-   Root Variables
-------------------------- */
-:root {
-  --bg-body: #e0e0e0;
-  --bg-navbar: #000;
-  --text-navbar: #fff;
-  --text-color: #000;
-  --bg-widget: #f4f4f4;
-  --bg-modal: #fff;
-  --text-modal: #000;
-  --btn-primary-bg: #007bff;
-  --btn-primary-hover: #0056b3;
-  --btn-red-bg: #dc3545;
-  --btn-red-hover: #a71d2a;
-  --btn-green-bg: #28a745;
-  --btn-green-hover: #1c7430;
-  --btn-secondary-bg: #6c757d;
-  --btn-secondary-hover: #5a6268;
-  --border-color: #ccc;
-}
-
-/* Dark mode variables */
-body.dark-mode {
-  --bg-body: #121212;
-  --bg-navbar: #1c1c1c;
-  --text-navbar: #eee;
-  --text-color: #eee;
-  --bg-widget: #1e1e1e;
-  --bg-modal: #2b2b2b;
-  --text-modal: #eee;
-  --btn-primary-bg: #3b82f6;
-  --btn-primary-hover: #1e40af;
-  --btn-red-bg: #ef4444;
-  --btn-red-hover: #991b1b;
-  --btn-green-bg: #22c55e;
-  --btn-green-hover: #166534;
-  --btn-secondary-bg: #4b5563;
-  --btn-secondary-hover: #374151;
-  --border-color: #444;
-}
-
-/* -------------------------
-   Global Styles
-------------------------- */
-body, html {
+/* ============================= */
+/* GLOBAL STYLES */
+/* ============================= */
+body {
+  font-family: Arial, sans-serif;
   margin: 0;
-  padding: 0;
-  font-family: 'Roboto', sans-serif;
-  background-color: var(--bg-body);
-  color: var(--text-color);
-  min-height: 100%;
+  padding: 0 1rem;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+h2 {
+  margin-top: 0;
 }
 
 button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
   cursor: pointer;
+  padding: 0.5rem 1rem;
+  margin: 0.25rem;
+  border: none;
+  background-color: #007bff;
   color: #fff;
-  transition: background 0.3s;
+  border-radius: 4px;
+  transition: background-color 0.2s;
 }
 
 button:hover {
-  opacity: 0.9;
+  background-color: #0056b3;
 }
 
-/* -------------------------
-   Navbar
-------------------------- */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background-color: var(--bg-navbar);
-  color: var(--text-navbar);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.nav-center .logo {
-  height: 50px;
-}
-
-/* -------------------------
-   Forms
-------------------------- */
-.auth-section, .editor-section {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 20px;
-  background-color: var(--bg-widget);
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-.auth-section h2, .editor-section h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.auth-section label, .editor-section label {
+input, textarea, select {
   display: block;
-  margin-bottom: 15px;
-}
-
-input[type="text"], input[type="email"], input[type="password"], textarea, select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 5px;
-  background-color: #fff;
-  color: #000;
+  padding: 0.5rem;
+  margin: 0.5rem 0;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 textarea {
-  min-height: 100px;
+  resize: vertical;
 }
 
-.warning {
-  color: var(--btn-red-bg);
-  margin-top: 10px;
+/* ============================= */
+/* NAVBAR */
+/* ============================= */
+nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: #007bff;
+  padding: 0.5rem 1rem;
+  color: #fff;
+}
+
+nav #user-greeting {
+  margin-right: auto;
   font-weight: bold;
 }
 
-/* -------------------------
-   Buttons
-------------------------- */
-.btn-blue { background-color: var(--btn-primary-bg); }
-.btn-blue:hover { background-color: var(--btn-primary-hover); }
-
-.btn-red { background-color: var(--btn-red-bg); }
-.btn-red:hover { background-color: var(--btn-red-hover); }
-
-.btn-green { background-color: var(--btn-green-bg); }
-.btn-green:hover { background-color: var(--btn-green-hover); }
-
-.btn-secondary { background-color: var(--btn-secondary-bg); }
-.btn-secondary:hover { background-color: var(--btn-secondary-hover); }
-
-/* -------------------------
-   Post Lists
-------------------------- */
-.post-list {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 0 20px;
+nav button {
+  margin-left: 0.5rem;
 }
 
-.post-list h2 {
-  margin-bottom: 10px;
+/* ============================= */
+/* FORMS (LOGIN / REGISTER / POST) */
+/* ============================= */
+form {
+  max-width: 400px;
+  margin: 1rem auto;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+form h2 {
+  text-align: center;
+  color: #007bff;
+}
+
+form span {
+  color: red;
+  display: block;
+  margin-top: 0.25rem;
+  text-align: center;
+}
+
+/* ============================= */
+/* CATEGORY FILTER */
+/* ============================= */
+#filter-category {
+  max-width: 300px;
+  margin: 1rem auto;
+  display: block;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* ============================= */
+/* POSTS DISPLAY */
+/* ============================= */
+#highlight-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
 }
 
 .post-card {
-  background-color: var(--bg-widget);
-  margin-bottom: 15px;
-  padding: 15px 20px;
+  background-color: #fff;
   border-radius: 8px;
+  padding: 1rem;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: background 0.3s;
 }
 
 .post-card h3 {
-  margin: 0 0 5px 0;
+  margin-top: 0;
+  color: #007bff;
 }
 
 .post-card p {
-  margin: 5px 0;
+  margin: 0.25rem 0;
 }
 
 .post-card button {
-  margin-right: 10px;
+  background-color: #28a745;
 }
 
-/* -------------------------
-   Category Filter
-------------------------- */
-#filter-category {
-  padding: 5px 10px;
-  margin-bottom: 20px;
-  border-radius: 5px;
-  border: 1px solid var(--border-color);
+.post-card button:hover {
+  background-color: #218838;
 }
 
-/* -------------------------
-   Editor Section Buttons
-------------------------- */
-.editor-section button {
-  margin-top: 10px;
+/* ============================= */
+/* EDIT / DELETE BUTTONS */
+/* ============================= */
+.post-card button:nth-child(1) {
+  background-color: #ffc107; /* Edit button */
+  color: #000;
 }
 
-/* -------------------------
-   Invalid Inputs
-------------------------- */
-input.invalid, textarea.invalid {
-  border: 2px solid var(--btn-red-bg);
-  background-color: #fff0f0;
+.post-card button:nth-child(1):hover {
+  background-color: #e0a800;
 }
 
-/* -------------------------
-   Responsive
-------------------------- */
-@media (max-width: 768px) {
-  .navbar {
+.post-card button:nth-child(2) {
+  background-color: #dc3545; /* Delete button */
+}
+
+.post-card button:nth-child(2):hover {
+  background-color: #c82333;
+}
+
+/* ============================= */
+/* HIDE ELEMENTS BY DEFAULT */
+/* ============================= */
+#login-form, #register-form, #post-form {
+  display: none;
+}
+
+/* ============================= */
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  nav {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .editor-section, .auth-section {
-    margin: 20px;
+  #highlight-container {
+    grid-template-columns: 1fr;
   }
 
-  .post-list {
-    padding: 0 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  input[type="text"], input[type="email"], input[type="password"], textarea, select, button {
-    width: 100%;
+  form {
+    width: 90%;
   }
 }

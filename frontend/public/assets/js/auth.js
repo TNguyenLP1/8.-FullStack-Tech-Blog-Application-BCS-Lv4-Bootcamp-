@@ -1,33 +1,26 @@
-// -------------------------
-// AUTH API
-// -------------------------
-const API_URL = 'http://localhost:3001/api/auth';
+const API_URL = window.location.origin.includes('localhost')
+  ? 'http://localhost:3001/api/auth'
+  : '/api/auth';
 
-// -------------------------
 // REGISTER
-// -------------------------
 export async function register(username, email, password) {
   try {
     const res = await fetch(`${API_URL}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, email, password }),
-      credentials: 'include' // important: send/receive cookie
+      credentials: 'include'
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Registration failed');
-
-    return data; // contains user info (without token, JWT is in cookie)
+    if (!res.ok) return { error: data.error || data.message || 'Registration failed' };
+    return { message: data.message || 'Registration successful!' };
   } catch (err) {
-    console.error(err);
     return { error: err.message };
   }
 }
 
-// -------------------------
 // LOGIN
-// -------------------------
 export async function login(email, password) {
   try {
     const res = await fetch(`${API_URL}/login`, {
@@ -38,18 +31,29 @@ export async function login(email, password) {
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Login failed');
-
-    return data; // contains user info
+    if (!res.ok) return { error: data.error || data.message || 'Login failed' };
+    return { user: data.user };
   } catch (err) {
-    console.error(err);
     return { error: err.message };
   }
 }
 
-// -------------------------
+// GET CURRENT USER
+export async function getCurrentUser() {
+  try {
+    const res = await fetch(`${API_URL}/me`, {
+      method: 'GET',
+      credentials: 'include'
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.user || null;
+  } catch (err) {
+    return null;
+  }
+}
+
 // LOGOUT
-// -------------------------
 export async function logout() {
   try {
     const res = await fetch(`${API_URL}/logout`, {
@@ -57,10 +61,9 @@ export async function logout() {
       credentials: 'include'
     });
     if (!res.ok) throw new Error('Logout failed');
-
-    // Remove user from state
-    window.location.reload();
+    return true;
   } catch (err) {
     console.error(err);
+    return false;
   }
 }

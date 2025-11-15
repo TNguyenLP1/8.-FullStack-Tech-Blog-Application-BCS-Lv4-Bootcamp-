@@ -1,94 +1,48 @@
-// -------------------------
-// POSTS API
-// -------------------------
+import { apiGet, apiPost, apiPut, apiDelete } from './api.js';
 
-const API_URL = 'http://localhost:3001/api/posts';
+const POSTS_URL = '/posts';
+const CATEGORIES_URL = '/categories';
 
-// -------------------------
-// Fetch all posts (optionally by category)
-// -------------------------
 export async function fetchPosts(categoryId = null) {
-  let url = API_URL;
-  if (categoryId) url += `?category=${categoryId}`;
-
   try {
-    const res = await fetch(url, {
-      method: 'GET',
-      credentials: 'include', // send JWT cookie
-    });
-    if (!res.ok) throw new Error('Failed to fetch posts');
-    return await res.json();
+    const path = categoryId ? `${POSTS_URL}?category=${categoryId}` : POSTS_URL;
+    return await apiGet(path);
   } catch (err) {
     console.error(err);
     return [];
   }
 }
 
-// -------------------------
-// CREATE POST
-// -------------------------
-export async function createPost({ title, excerpt, content, categoryId }) {
+export async function createPost(data) {
   try {
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, excerpt, content, categoryId }),
-      credentials: 'include', // send JWT cookie
-    });
-    if (!res.ok) throw new Error('Failed to create post');
-    return await res.json();
+    return await apiPost(POSTS_URL, data);
   } catch (err) {
     console.error(err);
-    return null;
+    return { error: err.message };
   }
 }
 
-// -------------------------
-// UPDATE POST
-// -------------------------
-export async function updatePost(postId, { title, excerpt, content, categoryId }) {
+export async function updatePost(id, data) {
   try {
-    const res = await fetch(`${API_URL}/${postId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, excerpt, content, categoryId }),
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error('Failed to update post');
-    return await res.json();
+    return await apiPut(`${POSTS_URL}/${id}`, data);
   } catch (err) {
     console.error(err);
-    return null;
+    return { error: err.message };
   }
 }
 
-// -------------------------
-// DELETE POST
-// -------------------------
-export async function deletePost(postId) {
+export async function deletePost(id) {
   try {
-    const res = await fetch(`${API_URL}/${postId}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error('Failed to delete post');
-    return await res.json();
+    return await apiDelete(`${POSTS_URL}/${id}`);
   } catch (err) {
     console.error(err);
-    return null;
+    return { error: err.message };
   }
 }
 
-// -------------------------
-// FETCH CATEGORIES
-// -------------------------
 export async function fetchCategories() {
   try {
-    const res = await fetch('http://localhost:3001/api/categories', {
-      credentials: 'include',
-    });
-    if (!res.ok) throw new Error('Failed to fetch categories');
-    return await res.json();
+    return await apiGet(CATEGORIES_URL);
   } catch (err) {
     console.error(err);
     return [];

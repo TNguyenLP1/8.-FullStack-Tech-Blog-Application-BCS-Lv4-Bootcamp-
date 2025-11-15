@@ -1,77 +1,53 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Editor - Tech Blog</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <title>New Post - Tech Blog</title>
 </head>
 <body>
-  <header class="navbar">
-    <div class="nav-left"></div>
-    <div class="nav-center">
-      <img src="assets/img/Armv2.png" class="logo" alt="Armv2 Logo">
-    </div>
-    <div class="nav-right">
-      <button id="theme-toggle">Toggle Theme</button>
-      <button id="logout-btn">Logout</button>
-      <a href="index.html">Home</a>
-    </div>
-  </header>
-
-  <main class="editor-section">
-    <h2>Create / Edit Post</h2>
-    <form id="post-form">
-      <label>Title<input type="text" id="title" required></label>
-      <label>Category<select id="category"></select></label>
-      <label>Excerpt<textarea id="excerpt"></textarea></label>
-      <label>Content<textarea id="content" required></textarea></label>
-      <button type="submit">Save</button>
-      <button type="button" id="cancel-edit">Cancel</button>
-      <p class="warning" id="post-warning"></p>
-    </form>
-  </main>
+  <h1>Create / Edit Post</h1>
+  <form id="post-form">
+    <input type="hidden" id="post-id">
+    <input type="text" id="post-title" placeholder="Title" required>
+    <input type="text" id="post-excerpt" placeholder="Excerpt">
+    <textarea id="post-content" placeholder="Content" required></textarea>
+    <select id="post-category"></select>
+    <button type="submit">Submit</button>
+  </form>
+  <a href="index.html">Back to Posts</a>
 
   <script type="module">
-    import { initTheme, initFormValidation, initUser } from './assets/js/main.js';
-    import { fetchCategories, createPost, updatePost } from './assets/js/posts.js';
+    import { createPost, updatePost, fetchCategories } from './posts.js';
+    import { getCurrentUser } from './auth.js';
 
-    initTheme();
-    initFormValidation();
-    initUser(JSON.parse(localStorage.getItem('user')));
+    const user = await getCurrentUser();
+    if (!user) window.location.href = 'login.html';
 
-    const form = document.getElementById('post-form');
-    const categorySelect = document.getElementById('category');
-
-    // Fetch categories
-    fetchCategories().then(cats=>{
-      categorySelect.innerHTML='';
-      cats.forEach(c=>{
-        const opt = document.createElement('option');
-        opt.value=c.id;
-        opt.textContent=c.name;
-        categorySelect.appendChild(opt);
-      });
+    const categories = await fetchCategories();
+    const catSelect = document.getElementById('post-category');
+    catSelect.innerHTML = '<option value="">Uncategorized</option>';
+    categories.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      catSelect.appendChild(opt);
     });
 
-    form.onsubmit = async e=>{
+    const form = document.getElementById('post-form');
+    form.onsubmit = async (e) => {
       e.preventDefault();
-      const post = {
-        title: document.getElementById('title').value,
-        content: document.getElementById('content').value,
-        excerpt: document.getElementById('excerpt').value,
-        categoryId: categorySelect.value
-      };
-      try {
-        await createPost(post);
-        window.location.href='index.html';
-      } catch(err){
-        document.getElementById('post-warning').textContent='Failed to save post';
-      }
-    };
+      const postId = document.getElementById('post-id').value;
+      const title = document.getElementById('post-title').value;
+      const excerpt = document.getElementById('post-excerpt').value;
+      const content = document.getElementById('post-content').value;
+      const categoryId = catSelect.value || null;
 
-    document.getElementById('cancel-edit').onclick = ()=>{
-      window.location.href='index.html';
+      let res;
+      if (postId) res = await updatePost(postId, { title, excerpt, content, categoryId });
+      else res = await createPost({ title, excerpt, content, categoryId });
+
+      if (res.error) alert(res.error);
+      else window.location.href = 'index.html';
     };
   </script>
 </body>

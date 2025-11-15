@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,49 +7,62 @@
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-  <header class="navbar">
-    <div class="nav-left"></div>
-    <div class="nav-center">
-      <img src="assets/img/Armv2.png" class="logo" alt="Armv2 Logo">
-    </div>
-    <div class="nav-right">
-      <button id="theme-toggle">Toggle Theme</button>
-      <span id="user-greeting"></span>
-      <a href="login.html" id="login-link">Login</a>
-      <a href="register.html" id="register-link">Register</a>
-      <button id="logout-btn" style="display:none;">Logout</button>
-      <a href="editor.html" id="editor-link" style="display:none;">New Post</a>
-    </div>
-  </header>
 
-  <main>
-    <section>
-      <label>Filter by Category:
-        <select id="filter-category"></select>
-      </label>
-    </section>
+<header>
+  <h1>Tech Blog</h1>
+  <nav>
+    <a href="#" id="login-link">Login</a>
+    <a href="#" id="register-link">Register</a>
+    <a href="#" id="logout-btn" style="display:none;">Logout</a>
+    <span id="user-greeting"></span>
+  </nav>
+</header>
 
-    <section id="highlight-posts" class="post-list">
-      <h2>Highlights</h2>
-      <div id="highlight-container"></div>
-    </section>
+<main>
 
-    <section id="user-posts" class="post-list" style="display:none;">
-      <h2>Your Posts</h2>
-      <div id="user-container"></div>
-    </section>
-  </main>
+  <!-- Login Form -->
+  <form id="login-form" class="auth-form" style="display:none;">
+    <h2>Login</h2>
+    <input type="email" id="login-email" placeholder="Email" required>
+    <input type="password" id="login-password" placeholder="Password" required>
+    <button type="submit">Login</button>
+    <p id="login-warning"></p>
+    <button type="button" onclick="document.getElementById('login-form').style.display='none'">Cancel</button>
+  </form>
 
-  <footer>
-    <p>&copy; 2025 Tech Blog</p>
-  </footer>
+  <!-- Register Form -->
+  <form id="register-form" class="auth-form" style="display:none;">
+    <h2>Register</h2>
+    <input type="text" id="register-username" placeholder="Username" required>
+    <input type="email" id="register-email" placeholder="Email" required>
+    <input type="password" id="register-password" placeholder="Password" required>
+    <button type="submit">Register</button>
+    <p id="register-warning"></p>
+    <button type="button" onclick="document.getElementById('register-form').style.display='none'">Cancel</button>
+  </form>
 
-  <script type="module">
-    import { initTheme, initUser, refreshPosts, setupCategoryFilter } from './assets/js/main.js';
-    initTheme();
-    initUser(JSON.parse(localStorage.getItem('user')));
-    refreshPosts(JSON.parse(localStorage.getItem('user')));
-    setupCategoryFilter(JSON.parse(localStorage.getItem('user')));
-  </script>
+  <!-- Post Editor Form -->
+  <form id="post-form" style="display:none;">
+    <h2 id="post-form-title">New Post</h2>
+    <input type="hidden" id="post-id">
+    <input type="text" id="post-title" placeholder="Title" required>
+    <input type="text" id="post-excerpt" placeholder="Excerpt">
+    <textarea id="post-content" placeholder="Content" required></textarea>
+    <select id="post-category"></select>
+    <button type="submit">Save Post</button>
+    <button type="button" id="cancel-post">Cancel</button>
+    <p id="post-warning"></p>
+  </form>
+
+  <!-- Category Filter -->
+  <label for="filter-category">Filter by category:</label>
+  <select id="filter-category"></select>
+
+  <!-- Posts Container -->
+  <section id="highlight-container"></section>
+
+</main>
+
+<script type="module" src="assets/js/main.js"></script>
 </body>
 </html>

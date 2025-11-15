@@ -1,41 +1,29 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Tech Blog</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
-  <main class="auth-section">
-    <h2>Login</h2>
-    <form id="login-form">
-      <label>Email<input type="email" id="login-email" required></label>
-      <label>Password<input type="password" id="login-password" required></label>
-      <button type="submit">Login</button>
-      <p class="warning" id="login-warning"></p>
-    </form>
-    <p>Don't have an account? <a href="register.html">Register here</a></p>
-  </main>
+  <h1>Login</h1>
+  <form id="login-form">
+    <input type="email" id="login-email" placeholder="Email" required>
+    <input type="password" id="login-password" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+  <p>Don't have an account? <a href="register.html">Register here</a></p>
 
   <script type="module">
-    import { initTheme, initFormValidation } from './assets/js/main.js';
-    import { login } from './assets/js/auth.js';
+    import { login } from './auth.js';
 
-    initTheme();
-    initFormValidation();
-
-    document.getElementById('login-form').onsubmit = async e => {
+    const form = document.getElementById('login-form');
+    form.onsubmit = async (e) => {
       e.preventDefault();
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
       const res = await login(email, password);
-      if(res.user){
-        localStorage.setItem('user', JSON.stringify(res.user));
-        window.location.href = 'index.html';
-      } else {
-        document.getElementById('login-warning').textContent = res.error || 'Login failed';
-      }
+      if (res.error) alert(res.error);
+      else window.location.href = 'index.html';
     };
   </script>
 </body>
