@@ -12,10 +12,11 @@ const Post = sequelize.define('Post', {
   tableName: 'posts',
   timestamps: true,
   createdAt: 'created_at',
-  updatedAt: 'updated_at',
+  updatedAt: 'updated_at'
 });
 
-Post.belongsTo(User, { foreignKey: 'UserId' });
-Post.belongsTo(Category, { foreignKey: 'CategoryId' });
+// Foreign keys
+Post.belongsTo(User, { foreignKey: 'author_id', onDelete: 'CASCADE' });
+Post.belongsTo(Category, { foreignKey: 'category_id', onDelete: 'SET NULL' });
 
 export default Post;

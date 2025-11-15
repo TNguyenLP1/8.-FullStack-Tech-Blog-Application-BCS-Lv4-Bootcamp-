@@ -1,13 +1,11 @@
 import sequelize from '../config/db.js';
-import User from './user.js';
-import Post from './post.js';
-import Category from './category.js';
+import { User, Post, Category } from './associations.js';
 
-// Associations
-User.hasMany(Post, { foreignKey: 'authorId' });
-Post.belongsTo(User, { foreignKey: 'authorId' });
-
-Category.hasMany(Post, { foreignKey: 'categoryId' });
-Post.belongsTo(Category, { foreignKey: 'categoryId' });
+// Auto-create tables if they don't exist
+sequelize.sync({ force: true }) // force: true drops tables if they exist
+  .then(() => {
+    console.log('Database & tables created successfully!');
+  })
+  .catch(err => console.error('Error creating database tables:', err));
 
 export { sequelize, User, Post, Category };
