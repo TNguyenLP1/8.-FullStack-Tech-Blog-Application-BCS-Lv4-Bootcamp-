@@ -23,24 +23,39 @@ function renderPosts(posts) {
     if (state.user && (p.user?.id === state.user.id || state.user.role === 'ADMIN')) {
       const editBtn = document.createElement('button');
       editBtn.textContent = 'Edit';
+      editBtn.className = 'btn btn-primary btn-sm me-2';
       editBtn.onclick = e => { e.stopPropagation(); showPostForm(p); };
 
       const delBtn = document.createElement('button');
       delBtn.textContent = 'Delete';
-      delBtn.onclick = async e => {
+      delBtn.className = 'btn btn-outline-danger btn-sm';
+      delBtn.onclick = e => {
         e.stopPropagation();
-        if (confirm('Are you sure?')) {
+        // Show Bootstrap confirmation modal instead of native confirm
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+        deleteModal.show();
+
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+        confirmBtn.onclick = async () => {
           const res = await deletePost(p.id);
-          if (res.error) alert(res.error);
-          else {
+          if (res.error) {
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            document.getElementById('errorModalBody').textContent = res.error;
+            errorModal.show();
+          } else {
             state.posts = state.posts.filter(post => post.id !== p.id);
             renderPosts(state.posts);
           }
-        }
+          deleteModal.hide();
+        };
       };
 
-      div.appendChild(editBtn);
-      div.appendChild(delBtn);
+      const btnGroup = document.createElement('div');
+      btnGroup.className = 'd-flex justify-content-end mt-2';
+      btnGroup.appendChild(editBtn);
+      btnGroup.appendChild(delBtn);
+
+      div.appendChild(btnGroup);
     }
 
     container.appendChild(div);
@@ -115,7 +130,7 @@ async function initCategories() {
         alert(res.error);
       } else {
         state.categories.push(res);
-        await initCategories(); // refresh dropdowns
+        await initCategories();
         nameInput.value = '';
       }
     };

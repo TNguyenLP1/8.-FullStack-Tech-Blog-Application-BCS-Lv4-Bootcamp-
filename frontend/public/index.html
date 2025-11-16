@@ -3,73 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tech Blog</title>
+  <title>Tri Nguyen Technical Blog</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/styles.css">
-</head>
-<body>
+  <style>
+    /* Center the viewing modal and constrain size */
+    #post-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 1050;
+    }
+    #post-modal .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(900px, 92vw);
+      max-height: 80vh;
+      overflow: auto;
+      background-color: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      border-radius: 0.5rem;
+      box-shadow: 0 0.75rem 1.5rem rgba(0,0,0,0.25);
+    }
+    #post-modal .close {
+      cursor: pointer;
+      font-size: 1.5rem;
+      line-height: 1;
+      float: right;
+    }
+    body.dark-mode #post-modal {
+      background: rgba(0, 0, 0, 0.6);
+    }
+    body.dark-mode #post-modal .modal-content {
+      background-color: #1e1e1e;
+      color: #e6e6e6;
+      border: 1px solid #333;
+    }
 
-<header>
-  <h1>Tech Blog</h1>
-  <nav>
-    <a href="#" id="login-link">Login</a>
-    <a href="#" id="register-link">Register</a>
-    <a href="#" id="logout-btn" style="display:none;">Logout</a>
-    <span id="user-greeting"></span>
-    <button id="new-post-btn" style="display:none;">New Post</button>
-  </nav>
+    /* Modal header themes */
+    .error-header-light,
+    .delete-header-light {
+      background-color: var(--bs-primary);
+      color: #fff;
+    }
+    .error-header-dark,
+    .delete-header-dark {
+      background-color: #b89cff; /* purple */
+      color: #fff;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<header class="navbar navbar-light bg-white border-bottom shadow-sm">
+  <div class="container d-flex justify-content-between align-items-center">
+    <a class="navbar-brand d-flex align-items-center" href="index.html">
+      <img src="assets/img/Armv2.png" alt="Tri Nguyen logo" width="48" height="56" class="me-2">
+      <span class="fw-bold">Tri Nguyen Technical Blog</span>
+    </a>
+    <div class="d-flex align-items-center">
+      <a href="#" id="login-link" class="btn btn-link">Login</a>
+      <a href="#" id="register-link" class="btn btn-link">Register</a>
+      <a href="#" id="logout-btn" class="btn btn-link" style="display:none;">Logout</a>
+      <span id="user-greeting" class="ms-2"></span>
+      <button id="new-post-btn" class="btn btn-primary btn-sm ms-2" style="display:none;">New Post</button>
+      <button id="themeToggle" class="btn btn-outline-secondary btn-sm ms-2">
+        <i class="fa-regular fa-sun me-1"></i> Theme
+      </button>
+    </div>
+  </div>
 </header>
 
-<main>
+<main class="container py-4">
   <!-- Login Form -->
-  <form id="login-form" class="auth-form" style="display:none;">
+  <form id="login-form" class="auth-form card p-3 mb-3 needs-validation" novalidate style="display:none;">
     <h2>Login</h2>
-    <input type="email" id="login-email" placeholder="Email" required>
-    <input type="password" id="login-password" placeholder="Password" required>
-    <button type="submit">Login</button>
-    <button type="button" onclick="document.getElementById('login-form').style.display='none'">Cancel</button>
+    <div class="mb-3">
+      <input type="email" id="login-email" class="form-control" placeholder="Email" required>
+      <div class="invalid-feedback">Please enter a valid email.</div>
+    </div>
+    <div class="mb-3">
+      <input type="password" id="login-password" class="form-control" placeholder="Password" required>
+      <div class="invalid-feedback">Password is required.</div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="triggerSubmit('login-form')">Login</button>
+    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('login-form').style.display='none'">Cancel</button>
   </form>
 
   <!-- Register Form -->
-  <form id="register-form" class="auth-form" style="display:none;">
+  <form id="register-form" class="auth-form card p-3 mb-3 needs-validation" novalidate style="display:none;">
     <h2>Register</h2>
-    <input type="text" id="register-username" placeholder="Username" required>
-    <input type="email" id="register-email" placeholder="Email" required>
-    <input type="password" id="register-password" placeholder="Password" required>
-    <button type="submit">Register</button>
-    <button type="button" onclick="document.getElementById('register-form').style.display='none'">Cancel</button>
+    <div class="mb-3">
+      <input type="text" id="register-username" class="form-control" placeholder="Username" required>
+      <div class="invalid-feedback">Please enter a username.</div>
+    </div>
+    <div class="mb-3">
+      <input type="email" id="register-email" class="form-control" placeholder="Email" required>
+      <div class="invalid-feedback">Please enter a valid email.</div>
+    </div>
+    <div class="mb-3">
+      <input type="password" id="register-password" class="form-control" placeholder="Password" required>
+      <div class="invalid-feedback">Password is required.</div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="triggerSubmit('register-form')">Register</button>
+    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('register-form').style.display='none'">Cancel</button>
   </form>
 
   <!-- Post Editor Form -->
-  <form id="post-form" style="display:none;">
+  <form id="post-form" class="card p-3 mb-3 needs-validation" novalidate style="display:none;">
     <h2 id="post-form-title">New Post</h2>
     <input type="hidden" id="post-id">
-    <input type="text" id="post-title" placeholder="Title" required>
-    <input type="text" id="post-excerpt" placeholder="Excerpt">
-    <textarea id="post-content" placeholder="Content" required></textarea>
-    <select id="post-category">
-      <option value="">Uncategorized</option>
-    </select>
-    <button type="submit">Save Post</button>
-    <button type="button" id="cancel-post">Cancel</button>
+    <div class="mb-3">
+      <input type="text" id="post-title" class="form-control" placeholder="Title" required>
+      <div class="invalid-feedback">Title is required.</div>
+    </div>
+    <div class="mb-3">
+      <input type="text" id="post-excerpt" class="form-control" placeholder="Excerpt">
+    </div>
+    <div class="mb-3">
+      <textarea id="post-content" class="form-control" placeholder="Content" required></textarea>
+      <div class="invalid-feedback">Content is required.</div>
+    </div>
+    <div class="mb-3">
+      <select id="post-category" class="form-select">
+        <option value="">Uncategorized</option>
+      </select>
+      <div class="invalid-feedback">Please select a category.</div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="triggerSubmit('post-form')">Save Post</button>
+    <button type="button" id="cancel-post" class="btn btn-outline-secondary">Cancel</button>
   </form>
 
   <!-- Category Filter -->
-  <label for="filter-category">Filter by category:</label>
-  <select id="filter-category">
-    <option value="">All</option>
-  </select>
+  <div class="mb-3">
+    <label for="filter-category" class="form-label">Filter by category:</label>
+    <select id="filter-category" class="form-select">
+      <option value="">All</option>
+    </select>
+  </div>
 
   <!-- Add new category -->
-  <input type="text" id="new-category-name" placeholder="New category">
-  <button id="add-category-btn">Add Category</button>
+  <div class="mb-3">
+    <input type="text" id="new-category-name" class="form-control d-inline-block w-auto" placeholder="New category">
+    <button id="add-category-btn" class="btn btn-outline-primary">Add Category</button>
+  </div>
 
   <!-- Posts Container -->
   <section id="highlight-container"></section>
 </main>
 
-<!-- Post Modal -->
+<!-- Post Viewing Modal -->
 <div id="post-modal" class="modal">
-  <div class="modal-content">
+  <div class="modal-content p-3">
     <span id="close-modal" class="close">&times;</span>
     <h2 id="modal-title"></h2>
     <p id="modal-content"></p>
@@ -77,6 +166,136 @@
     <p><strong>Author:</strong> <span id="modal-author"></span></p>
   </div>
 </div>
+
+<!-- Validation / Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header text-white" id="errorModalHeader">
+        <h5 class="modal-title" id="errorModalLabel">Error</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="errorModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header text-white" id="deleteConfirmHeader">
+        <h5 class="modal-title" id="deleteConfirmLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this post?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" id="confirmDeleteBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-white border-top py-4 text-center">
+  <img src="assets/img/Armv2.png" alt="Tri Nguyen logo" width="40" height="48" class="mb-2">
+  <p class="mb-1">&copy; 2025 Tri Nguyen Technical Blog</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Theme toggle + modal header theming
+  const themeToggle = document.getElementById('themeToggle');
+  const body = document.body;
+  const errorHeader = document.getElementById('errorModalHeader');
+  const deleteHeader = document.getElementById('deleteConfirmHeader');
+
+  function applyThemeClasses() {
+    // Remove both then add the correct one for each modal header
+    errorHeader.classList.remove('error-header-light', 'error-header-dark');
+    deleteHeader.classList.remove('delete-header-light', 'delete-header-dark');
+
+    if (body.classList.contains('dark-mode')) {
+      errorHeader.classList.add('error-header-dark');   // purple
+      deleteHeader.classList.add('delete-header-dark'); // purple
+    } else {
+      errorHeader.classList.add('error-header-light');   // blue
+      deleteHeader.classList.add('delete-header-light'); // blue
+    }
+  }
+
+  // Initial theme from localStorage
+  if (localStorage.getItem('theme') === 'dark') {
+    body.classList.add('dark-mode');
+    themeToggle.querySelector('i').classList.replace('fa-sun','fa-moon');
+  }
+  applyThemeClasses();
+
+  themeToggle.addEventListener('click', () => {
+    body.classList.toggle('dark-mode');
+    const icon = themeToggle.querySelector('i');
+    if (body.classList.contains('dark-mode')) {
+      localStorage.setItem('theme','dark');
+      icon.classList.replace('fa-sun','fa-moon');
+    } else {
+      localStorage.setItem('theme','light');
+      icon.classList.replace('fa-moon','fa-sun');
+    }
+    applyThemeClasses();
+  });
+
+  // Programmatic submit to avoid native HTML validation UI
+  function triggerSubmit(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    const evt = new Event('submit', { bubbles: true, cancelable: true });
+    form.dispatchEvent(evt);
+  }
+
+  // Show error modal helper
+  function showErrorModal(message) {
+    document.getElementById('errorModalBody').textContent = message;
+    const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+    modal.show();
+  }
+
+  // Suppress native validation UI and show modal when invalid
+  (function () {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+
+    Array.from(forms).forEach(form => {
+      form.setAttribute('novalidate', '');
+
+      // Prevent native invalid bubbles
+      form.querySelectorAll('input, textarea, select').forEach(el => {
+        el.addEventListener('invalid', e => {
+          e.preventDefault();
+          e.stopPropagation();
+        }, true);
+      });
+
+      // Capture-phase validation
+      form.addEventListener('submit', e => {
+        const valid = form.checkValidity();
+        form.classList.add('was-validated');
+
+        if (!valid) {
+          e.preventDefault();
+          e.stopPropagation();
+          showErrorModal('Please correct the highlighted fields.');
+          return;
+        }
+        // Valid: allow main.js onsubmit (bubble phase) to handle fetch submission
+      }, true);
+    });
+  })();
+</script>
 
 <script type="module" src="assets/js/main.js"></script>
 </body>
