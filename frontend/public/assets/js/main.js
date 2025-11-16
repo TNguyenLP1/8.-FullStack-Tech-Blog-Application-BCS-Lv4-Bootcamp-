@@ -17,14 +17,18 @@ function renderPosts(posts) {
       <p>By ${p.user?.username || 'Unknown'} | Category: ${p.category?.name || 'Uncategorized'}</p>
     `;
 
+    // Click entire card to open modal
+    div.onclick = () => showPostModal(p);
+
     if (state.user && (p.user?.id === state.user.id || state.user.role === 'ADMIN')) {
       const editBtn = document.createElement('button');
       editBtn.textContent = 'Edit';
-      editBtn.onclick = () => showPostForm(p);
+      editBtn.onclick = e => { e.stopPropagation(); showPostForm(p); };
 
       const delBtn = document.createElement('button');
       delBtn.textContent = 'Delete';
-      delBtn.onclick = async () => {
+      delBtn.onclick = async e => {
+        e.stopPropagation();
         if (confirm('Are you sure?')) {
           const res = await deletePost(p.id);
           if (res.error) alert(res.error);
@@ -52,6 +56,24 @@ function showPostForm(post = null) {
   document.getElementById('post-content').value = post?.content || '';
   document.getElementById('post-category').value = post?.category?.id || '';
 }
+
+function showPostModal(post) {
+  document.getElementById('modal-title').textContent = post.title;
+  document.getElementById('modal-content').textContent = post.content;
+  document.getElementById('modal-category').textContent = post.category?.name || 'Uncategorized';
+  document.getElementById('modal-author').textContent = post.user?.username || 'Unknown';
+
+  document.getElementById('post-modal').style.display = 'block';
+}
+
+document.getElementById('close-modal').onclick = () => {
+  document.getElementById('post-modal').style.display = 'none';
+};
+
+window.onclick = e => {
+  const modal = document.getElementById('post-modal');
+  if (e.target === modal) modal.style.display = 'none';
+};
 
 async function initCategories() {
   const filter = document.getElementById('filter-category');

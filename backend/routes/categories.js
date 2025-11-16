@@ -20,7 +20,7 @@ router.post('/', authMiddleware, async (req, res) => {
     const cat = await category.create({ name });
     res.status(201).json(cat);
   } catch (err) {
-    console.error('POST /categories error:', err); // ✅ log actual error
+    console.error('POST /categories error:', err);
     res.status(500).json({ error: 'Failed to create category' });
   }
 });
