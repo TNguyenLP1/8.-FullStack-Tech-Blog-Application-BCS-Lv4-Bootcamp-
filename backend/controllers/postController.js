@@ -6,7 +6,10 @@ export const getPosts = async (req, res) => {
     const where = category ? { categoryId: category } : {};
     const posts = await Post.findAll({
       where,
-      include: [User, Category],
+      include: [
+        { model: User, attributes: ['id', 'username'] },
+        { model: Category, attributes: ['id', 'name'] }
+      ],
       order: [['created_at', 'DESC']]
     });
     res.json(posts);
@@ -19,8 +22,19 @@ export const getPosts = async (req, res) => {
 export const createPost = async (req, res) => {
   try {
     const { title, content, excerpt, categoryId } = req.body;
-    const post = await Post.create({ title, content, excerpt, categoryId, authorId: req.user.id });
-    res.status(201).json(post);
+    if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
+    const post = await Post.create({
+      title, content, excerpt,
+      categoryId: categoryId || null,
+      authorId: req.user.id
+    });
+    const withIncludes = await Post.findByPk(post.id, {
+      include: [
+        { model: User, attributes: ['id', 'username'] },
+        { model: Category, attributes: ['id', 'name'] }
+      ]
+    });
+    res.status(201).json(withIncludes);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to create post' });
@@ -33,10 +47,16 @@ export const updatePost = async (req, res) => {
     const { title, content, excerpt, categoryId } = req.body;
     const post = await Post.findByPk(id);
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    if (post.authorId !== req.user.id) return res.status(403).json({ error: 'Unauthorized' });
+    if (post.authorId !== req.user.id && req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
 
-    await post.update({ title, content, excerpt, categoryId });
-    res.json(post);
+    await post.update({ title, content, excerpt, categoryId: categoryId || null });
+    const withIncludes = await Post.findByPk(post.id, {
+      include: [
+        { model: User, attributes: ['id', 'username'] },
+        { model: Category, attributes: ['id', 'name'] }
+      ]
+    });
+    res.json(withIncludes);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to update post' });

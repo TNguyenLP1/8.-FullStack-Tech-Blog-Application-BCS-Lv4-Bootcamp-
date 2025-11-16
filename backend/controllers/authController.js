@@ -15,9 +15,7 @@ export const register = async (req, res) => {
     if (await User.findOne({ where: { username } }))
       return res.status(400).json({ error: 'Username already taken' });
 
-    // Create user WITHOUT hashing here; the hook will hash it
     await User.create({ username, email, password });
-
     res.status(201).json({ message: 'Registration successful' });
   } catch (err) {
     console.error(err);
@@ -36,7 +34,11 @@ export const login = async (req, res) => {
     const match = await user.comparePassword(password);
     if (!match) return res.status(400).json({ error: 'Invalid email or password' });
 
-    const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES || '1d' }
+    );
 
     res.cookie('token', token, {
       httpOnly: true,

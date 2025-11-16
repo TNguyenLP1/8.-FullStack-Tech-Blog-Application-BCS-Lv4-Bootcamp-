@@ -17,8 +17,9 @@
   <a href="index.html">Back to Posts</a>
 
   <script type="module">
-    import { createPost, updatePost, fetchCategories } from './posts.js';
-    import { getCurrentUser } from './auth.js';
+  import { createPost, updatePost, fetchCategories } from './assets/js/posts.js';
+  import { getCurrentUser } from './assets/js/auth.js';
+
 
     const user = await getCurrentUser();
     if (!user) window.location.href = 'login.html';

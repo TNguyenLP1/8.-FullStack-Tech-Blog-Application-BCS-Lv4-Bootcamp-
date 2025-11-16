@@ -2,12 +2,10 @@ import User from './User.js';
 import Post from './Post.js';
 import Category from './Category.js';
 
-// User <> Post
-User.hasMany(Post, { foreignKey: 'author_id' });
-Post.belongsTo(User, { foreignKey: 'author_id' });
+User.hasMany(Post, { foreignKey: 'authorId', onDelete: 'CASCADE' });
+Post.belongsTo(User, { foreignKey: 'authorId', onDelete: 'CASCADE' });
 
-// Category <> Post
-Category.hasMany(Post, { foreignKey: 'category_id' });
-Post.belongsTo(Category, { foreignKey: 'category_id' });
+Category.hasMany(Post, { foreignKey: 'categoryId', onDelete: 'SET NULL' });
+Post.belongsTo(Category, { foreignKey: 'categoryId', onDelete: 'SET NULL' });
 
 export { User, Post, Category };

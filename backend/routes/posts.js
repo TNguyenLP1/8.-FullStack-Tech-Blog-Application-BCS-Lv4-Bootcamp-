@@ -4,10 +4,10 @@ import { Post, User, Category } from '../models/index.js';
 
 const router = express.Router();
 
-// Get posts (optionally by category)
+// Get posts (optional by category)
 router.get('/', async (req, res) => {
   const category = req.query.category;
-  const where = category ? { CategoryId: category } : {};
+  const where = category ? { categoryId: category } : {};
   const posts = await Post.findAll({
     where,
     include: [
@@ -24,8 +24,20 @@ router.post('/', authMiddleware, async (req, res) => {
   const { title, content, excerpt, categoryId } = req.body;
   if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
 
-  const post = await Post.create({ title, content, excerpt, CategoryId: categoryId || null, UserId: req.user.id });
-  res.status(201).json(post);
+  const post = await Post.create({
+    title, content, excerpt,
+    categoryId: categoryId || null,
+    authorId: req.user.id
+  });
+
+  const withIncludes = await Post.findByPk(post.id, {
+    include: [
+      { model: User, attributes: ['id', 'username'] },
+      { model: Category, attributes: ['id', 'name'] }
+    ]
+  });
+
+  res.status(201).json(withIncludes);
 });
 
 // Update post
@@ -33,17 +45,25 @@ router.put('/:id', authMiddleware, async (req, res) => {
   const { title, content, excerpt, categoryId } = req.body;
   const post = await Post.findByPk(req.params.id);
   if (!post) return res.status(404).json({ error: 'Post not found' });
-  if (post.UserId !== req.user.id && req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+  if (post.authorId !== req.user.id && req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
 
-  await post.update({ title, content, excerpt, CategoryId: categoryId });
-  res.json(post);
+  await post.update({ title, content, excerpt, categoryId: categoryId || null });
+
+  const withIncludes = await Post.findByPk(post.id, {
+    include: [
+      { model: User, attributes: ['id', 'username'] },
+      { model: Category, attributes: ['id', 'name'] }
+    ]
+  });
+
+  res.json(withIncludes);
 });
 
 // Delete post
 router.delete('/:id', authMiddleware, async (req, res) => {
   const post = await Post.findByPk(req.params.id);
   if (!post) return res.status(404).json({ error: 'Post not found' });
-  if (post.UserId !== req.user.id && req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
+  if (post.authorId !== req.user.id && req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Forbidden' });
 
   await post.destroy();
   res.json({ message: 'Post deleted' });

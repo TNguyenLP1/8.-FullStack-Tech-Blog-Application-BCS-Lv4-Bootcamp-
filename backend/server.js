@@ -7,56 +7,42 @@ import { fileURLToPath } from 'url';
 import sequelize from './config/db.js';
 
 import authRoutes from './routes/auth.js';
-import postsRoutes from './routes/posts.js';
+import postsRoutes from './routes/posts.js'; // keep this single posts route
 import categoriesRoutes from './routes/categories.js';
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Fix ES module path issue
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// --------------------
-// MIDDLEWARE
-// --------------------
+// CORS: match frontend origin and allow credentials
 app.use(cors({
-  origin: 'http://localhost:3001', // adjust if frontend served from another port
+  origin: process.env.FRONTEND_URL, // e.g., http://localhost:3000
   credentials: true
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 
-// --------------------
-// API ROUTES
-// --------------------
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/categories', categoriesRoutes);
 
-// --------------------
-// SERVE FRONTEND STATIC FILES
-// --------------------
+// Serve frontend
 const frontendPath = path.join(__dirname, '../frontend/public');
 app.use(express.static(frontendPath));
 
-// --------------------
-// CATCH-ALL ROUTE FOR SPA
-// Exclude /api requests so JS modules load correctly
-// --------------------
+// SPA fallback
 app.get(/^(?!\/api).*/, (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-// --------------------
-// START SERVER
-// --------------------
 async function start() {
   try {
     await sequelize.authenticate();
     console.log('Connected to DB:', process.env.DB_NAME);
-
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
