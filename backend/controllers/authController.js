@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { User } from '../models/index.js';
+import { user } from '../models/index.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -10,12 +10,12 @@ export const register = async (req, res) => {
     if (!username || !email || !password)
       return res.status(400).json({ error: 'All fields required' });
 
-    if (await User.findOne({ where: { email } }))
+    if (await user.findOne({ where: { email } }))
       return res.status(400).json({ error: 'Email already registered' });
-    if (await User.findOne({ where: { username } }))
+    if (await user.findOne({ where: { username } }))
       return res.status(400).json({ error: 'Username already taken' });
 
-    await User.create({ username, email, password });
+    await user.create({ username, email, password });
     res.status(201).json({ message: 'Registration successful' });
   } catch (err) {
     console.error(err);
@@ -28,14 +28,14 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'All fields required' });
 
-    const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(400).json({ error: 'Invalid email or password' });
+    const foundUser = await user.findOne({ where: { email } });
+    if (!foundUser) return res.status(400).json({ error: 'Invalid email or password' });
 
-    const match = await user.comparePassword(password);
+    const match = await foundUser.comparePassword(password);
     if (!match) return res.status(400).json({ error: 'Invalid email or password' });
 
     const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
+      { id: foundUser.id, username: foundUser.username, role: foundUser.role },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES || '1d' }
     );
@@ -47,7 +47,7 @@ export const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000
     });
 
-    res.json({ user: { id: user.id, username: user.username, role: user.role } });
+    res.json({ user: { id: foundUser.id, username: foundUser.username, role: foundUser.role } });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

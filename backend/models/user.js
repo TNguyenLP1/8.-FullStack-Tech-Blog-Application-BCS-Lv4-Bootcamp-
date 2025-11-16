@@ -2,7 +2,7 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 import bcrypt from 'bcryptjs';
 
-const User = sequelize.define('User', {
+const user = sequelize.define('user', {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   username: { type: DataTypes.STRING(50), allowNull: false, unique: true },
   email: { type: DataTypes.STRING(100), allowNull: false, unique: true },
@@ -14,17 +14,17 @@ const User = sequelize.define('User', {
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   hooks: {
-    beforeCreate: async (user) => {
-      if (user.password) {
+    beforeCreate: async (u) => {
+      if (u.password) {
         const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(user.password, salt);
+        u.password = await bcrypt.hash(u.password, salt);
       }
     }
   }
 });
 
-User.prototype.comparePassword = async function(password) {
+user.prototype.comparePassword = async function(password) {
   return bcrypt.compare(password, this.password);
 };
 
-export default User;
+export default user;

@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 
-const Category = sequelize.define('Category', {
+const category = sequelize.define('category', {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   name: { type: DataTypes.STRING(50), allowNull: false, unique: true }
 }, {
@@ -11,4 +11,4 @@ const Category = sequelize.define('Category', {
   updatedAt: 'updated_at'
 });
 
-export default Category;
+export default category;

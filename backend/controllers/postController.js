@@ -1,14 +1,14 @@
-import { Post, User, Category } from '../models/index.js';
+import { post, user, category } from '../models/index.js';
 
-export const getPosts = async (req, res) => {
+export const getposts = async (req, res) => {
   try {
-    const { category } = req.query;
-    const where = category ? { categoryId: category } : {};
-    const posts = await Post.findAll({
+    const { category: categoryId } = req.query;
+    const where = categoryId ? { categoryId } : {};
+    const posts = await post.findAll({
       where,
       include: [
-        { model: User, attributes: ['id', 'username'] },
-        { model: Category, attributes: ['id', 'name'] }
+        { model: user, attributes: ['id', 'username'] },
+        { model: category, attributes: ['id', 'name'] }
       ],
       order: [['created_at', 'DESC']]
     });
@@ -19,19 +19,23 @@ export const getPosts = async (req, res) => {
   }
 };
 
-export const createPost = async (req, res) => {
+export const createpost = async (req, res) => {
   try {
     const { title, content, excerpt, categoryId } = req.body;
     if (!title || !content) return res.status(400).json({ error: 'Title and content required' });
-    const post = await Post.create({
-      title, content, excerpt,
+
+    const newPost = await post.create({
+      title,
+      content,
+      excerpt,
       categoryId: categoryId || null,
       authorId: req.user.id
     });
-    const withIncludes = await Post.findByPk(post.id, {
+
+    const withIncludes = await post.findByPk(newPost.id, {
       include: [
-        { model: User, attributes: ['id', 'username'] },
-        { model: Category, attributes: ['id', 'name'] }
+        { model: user, attributes: ['id', 'username'] },
+        { model: category, attributes: ['id', 'name'] }
       ]
     });
     res.status(201).json(withIncludes);
@@ -41,19 +45,20 @@ export const createPost = async (req, res) => {
   }
 };
 
-export const updatePost = async (req, res) => {
+export const updatepost = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, content, excerpt, categoryId } = req.body;
-    const post = await Post.findByPk(id);
-    if (!post) return res.status(404).json({ error: 'Post not found' });
-    if (post.authorId !== req.user.id && req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    const existingPost = await post.findByPk(id);
+    if (!existingPost) return res.status(404).json({ error: 'Post not found' });
+    if (existingPost.authorId !== req.user.id && req.user.role !== 'ADMIN')
+      return res.status(403).json({ error: 'Unauthorized' });
 
-    await post.update({ title, content, excerpt, categoryId: categoryId || null });
-    const withIncludes = await Post.findByPk(post.id, {
+    await existingPost.update({ title, content, excerpt, categoryId: categoryId || null });
+    const withIncludes = await post.findByPk(existingPost.id, {
       include: [
-        { model: User, attributes: ['id', 'username'] },
-        { model: Category, attributes: ['id', 'name'] }
+        { model: user, attributes: ['id', 'username'] },
+        { model: category, attributes: ['id', 'name'] }
       ]
     });
     res.json(withIncludes);
@@ -63,14 +68,15 @@ export const updatePost = async (req, res) => {
   }
 };
 
-export const deletePost = async (req, res) => {
+export const deletepost = async (req, res) => {
   try {
     const { id } = req.params;
-    const post = await Post.findByPk(id);
-    if (!post) return res.status(404).json({ error: 'Post not found' });
-    if (post.authorId !== req.user.id && req.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorized' });
+    const existingPost = await post.findByPk(id);
+    if (!existingPost) return res.status(404).json({ error: 'Post not found' });
+    if (existingPost.authorId !== req.user.id && req.user.role !== 'ADMIN')
+      return res.status(403).json({ error: 'Unauthorized' });
 
-    await post.destroy();
+    await existingPost.destroy();
     res.json({ message: 'Post deleted' });
   } catch (err) {
     console.error(err);

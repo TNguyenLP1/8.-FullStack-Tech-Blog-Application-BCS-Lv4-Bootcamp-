@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import sequelize from './config/db.js';
 
 import authRoutes from './routes/auth.js';
-import postsRoutes from './routes/posts.js'; // keep this single posts route
+import postsRoutes from './routes/postRoutes.js';
 import categoriesRoutes from './routes/categories.js';
 
 dotenv.config();
@@ -19,7 +19,7 @@ const __dirname = path.dirname(__filename);
 
 // CORS: match frontend origin and allow credentials
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // e.g., http://localhost:3000
+  origin: process.env.FRONTEND_URL, 
   credentials: true
 }));
 
@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
-app.use('/api/posts', postsRoutes);
+app.use('/api/posts', postsRoutes);        //
 app.use('/api/categories', categoriesRoutes);
 
 // Serve frontend

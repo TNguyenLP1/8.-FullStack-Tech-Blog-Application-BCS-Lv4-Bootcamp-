@@ -1,11 +1,27 @@
 import sequelize from '../config/db.js';
-import { User, Post, Category } from './associations.js';
+import { user, post, category } from './associations.js';
 
+// Initialize and sync schema
 async function initSchema() {
-  await sequelize.sync({ alter: true });
-  console.log('Database schema synchronized');
+  try {
+    await sequelize.authenticate();
+    console.log('Database connection established successfully');
+
+    // Sync models with DB schema
+    await sequelize.sync({ alter: true }); 
+    console.log('Database schema synchronized');
+  } catch (err) {
+    console.error('Error creating database tables:', err);
+  }
 }
 
-initSchema().catch(err => console.error('Error creating database tables:', err));
+// Run schema initialization
+initSchema();
 
-export { sequelize, User, Post, Category };
+// Export sequelize instance and models
+export {
+  sequelize,
+  user,
+  post,
+  category
+};

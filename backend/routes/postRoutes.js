@@ -1,12 +1,12 @@
 import express from 'express';
-import { getPosts, getPostById, createPost, updatePost, deletePost } from '../controllers/postController.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import { getposts, createpost, updatepost, deletepost } from '../controllers/postController.js';
 
 const router = express.Router();
 
-router.get('/', getPosts);           // all posts
-router.get('/:id', getPostById);     // single post by ID
-router.post('/', createPost);
-router.put('/:id', updatePost);
-router.delete('/:id', deletePost);
+router.get('/', getposts);           // all posts
+router.post('/', authMiddleware, createpost);
+router.put('/:id', authMiddleware, updatepost);
+router.delete('/:id', authMiddleware, deletepost);
 
 export default router;
